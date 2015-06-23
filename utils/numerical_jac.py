@@ -1,10 +1,9 @@
 import numpy as np
 
-def numerical_jac(f, x):
+def numerical_jac(f, x, eps=pow(10, -5)):
     y = f(x) 
     grad = np.zeros((len(y), len(x)));
     
-    eps = pow(10, -5)
     xp = x.copy()
 
     for i in range(len(x)):

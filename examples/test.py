@@ -7,7 +7,7 @@ This file should contain the a test example
 
 
 def main():
-    # (TODO)Consider a particular exmaple
+    # (TODO)Consider a particular example (maybe an example from the paper)?
     T = 50
     nX = 10
 
