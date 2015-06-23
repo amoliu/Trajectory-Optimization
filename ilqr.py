@@ -15,14 +15,14 @@ class iLQR(object):
         self.traj_init = traj_init
 
     def execute(self, x_init, U):
-        X = np.zeros((len(x_init), self.T))
-        X[:, 0] = x_init
+        X = np.zeros((self.T, len(x_init))
+        X[0] = x_init
         x_next = x_init
 
         # (TODO) figure out whether to add the (T+1)th state
         for i in range(self.T - 1):
-            x_next = self.f(x_next, U[:,i], dt)
-            X[:, i+1] = x_next
+            x_next = self.f(x_next, U[i], dt)
+            X[i+1] = x_next
 
         return X
 
@@ -47,9 +47,9 @@ class iLQR(object):
         converged = False
         f = self.f
         dt = self.dt
-        curr_X = np.zeros((len(self.init_state), T))
+        curr_X = np.zeros((T, len(self.init_state)))
         curr_init_state = self.init_state
-        curr_X[:,0] = curr_init_state
+        curr_X[0] = curr_init_state
         curr_U = self.control_init
         
         nX = len(self.init_state)
@@ -83,23 +83,34 @@ class iLQR(object):
             S = np.zeros((T+1, nX, nX))
             Q_N = Q_X[-1]
             S[-1] = Q_N
+            DELTA_U = np.zeros((T, nU))
+            V = np.zeros((T, nX)) # (TODO) What should V[T] be
             for i in range(T):
                 index = T - i - 1
+
                 x = curr_X[index]
                 u = curr_U[index]
+
                 A = A_X[index]
                 B = B_U[index]
+
                 S_n = S[index+1]
                 K_help = np.inv(B.T.dot(S_n).dot(B) + R)
                 K = K_help.dot(B.T).dot(S_n).dot(A)
+
                 S_k = A.T.dot(S_n).dot(A - B.dot(K)) + Q
                 S[index] = S_k
-                K_v[index] = K_help.dot(B.T)
-                K_u[index] = K_help.dot(R)
+
+                K_v = K_help.dot(B.T)
+                K_u = K_help.dot(R)
+
                 v_n = V[index+1]
                 v = (A - B.dot(K)).dot(v) - K.T.dot(R).dot(u) + Q.dot(x)
                 V[index] = v
+
                 delta_u = -K.dot(delta_x) - K_v.dot(v_next) - K_u.dot(u)
+                DELTA_U[index] = delta_u
+
 
             # Test convergence
 
