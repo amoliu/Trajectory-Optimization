@@ -20,7 +20,6 @@ class iLQR(object):
         x_next = x_init
 
         # (TODO) figure out whether to add the (T+1)th state
-
         for i in range(self.T - 1):
             x_next = self.f(x_next, U[:,i], dt)
             X[:, i+1] = x_next
@@ -53,6 +52,9 @@ class iLQR(object):
         curr_X[:,0] = curr_init_state
         curr_U = self.control_init
         
+        nX = len(self.init_state)
+        nU = len(curr_U)
+        
         while not converged:
             # Execute current policy and record the current state-input trajectory {x}, {u}
             if self.traj_init == None:
@@ -63,13 +65,43 @@ class iLQR(object):
             # a second order Taylor expansion of the cost function
 
             ## First order taylor approximation of the dynamics model
-            linear_approx_dynamics_model = compute_linear_approx_dynamics_model(f, curr_X, curr_Y, self.dt)
+            A_X, B_U = compute_linear_approx_dynamics_model(f, curr_X, curr_Y, self.dt)
 
             ## Second order Taylor expansion of the cost function
-            quadratic_approx_cost_func = compute_quadratic_approx_cost(curr_X, curr_Y)
+            Q_X, R_U = compute_quadratic_approx_cost(curr_X, curr_Y)
 
             # Use the LQR backups to solve for the optimal control policy for LQ approximation obtained
             # in previous state
-            # (TODO)
 
-            
+            # Compute S_k, K, K_v, K_u, v_k (Consider now only the case that Q_i are all the same)
+            """
+            Write out the equations here:
+
+
+
+            """
+            S = np.zeros((T+1, nX, nX))
+            Q_N = Q_X[-1]
+            S[-1] = Q_N
+            for i in range(T):
+                index = T - i - 1
+                x = curr_X[index]
+                u = curr_U[index]
+                A = A_X[index]
+                B = B_U[index]
+                S_n = S[index+1]
+                K_help = np.inv(B.T.dot(S_n).dot(B) + R)
+                K = K_help.dot(B.T).dot(S_n).dot(A)
+                S_k = A.T.dot(S_n).dot(A - B.dot(K)) + Q
+                S[index] = S_k
+                K_v[index] = K_help.dot(B.T)
+                K_u[index] = K_help.dot(R)
+                v_n = V[index+1]
+                v = (A - B.dot(K)).dot(v) - K.T.dot(R).dot(u) + Q.dot(x)
+                V[index] = v
+                delta_u = -K.dot(delta_x) - K_v.dot(v_next) - K_u.dot(u)
+
+            # Test convergence
+
+    return curr_U
+
