@@ -1,41 +1,51 @@
 import numpy as np
 from ilqr import iLQR
+from math import sin, pi
+import matplotlib.pyplot as plt
+from inverted_pendulum_dynamics import f
 
 """
 This file contains a test example of a simple pendulum
 """
 
-def f(x, u):
+def execute_trajectory(x_init, U, dt):
     """
-    Dynamics for pendulum
-    dx1/dt = x2
-    dx2/dt = g/l sinx1 - mu/(ml^2) x2 + 1/(ml^2) mu
+    Executes the control and plot the trajectory
     """
-    pass
+    T = len(u)
+    traj = np.zeros((T + 1, len(x_init)))
+    traj[0] = x_init
+    for i in range(1, T+1):
+        control = U[i-1]
+        next_state = f(traj[i - 1], control, dt)
+        traj[i] = next_state
 
+    return traj
+
+def plot_trajectory(traj):
+    X1 = traj[:,0] # theta
+    X2 = traj[:,1] # velocity
+    plt.plot(X1, X2)
+    plt.xlabel("theta")
+    plt.ylabel("velocity")
+    plt.show()
 
 def main():
     # Consider a particular example (maybe an example from the paper)?
-    m = 1
-    l = 1
-    g = 9.8
-    mu = 0.01
-    r = pow(10, -5)
-
     T = 50
     nX = 10
+    dt = 0.1
 
+    x_init = np.array([pi/2, 0])
     # Get a sequence of control input u_1,..., u_T
     solver = iLQR()
     U = solver.run_algorithm() # column i of U should be control input at time i
 
-    X = np.zeros((nX, T))
-    # (TODO)Execute the control sequence
-    X[:,0] = starting_state
-    for t in range(T - 1):
-        X[:,t+1] = f(X[:,t], U[:,t])
 
-    # (TODO) Plot the trajectory
+    # Execute the control sequence
+    traj = execute_trajectory(x_init, U, dt)
+
+    plot_trajectory(traj)
 
 
 if __main__ == "__main__":
