@@ -1,9 +1,10 @@
 import numpy as np
 from compute_linear_approx_dynamics_model import compute_linear_approx_dynamics_model
 from compute_quadratic_approx_cost import compute_quadratic_approx_cost
+from compute_quadratic_approx_cost_pendulum import compute_quadratic_approx_cost_pendulum
 
 class iLQR(object):
-    def __init__(self, f, T, dt, init_state, control_init, traj_init=None):
+    def __init__(self, f, T, dt, init_state, control_init, cost_func, traj_init=None, Q=None, Q_f=None):
         """
         Initialize constants
         """
@@ -13,18 +14,23 @@ class iLQR(object):
         self.init_state = init_state
         self.control_init = control_init
         self.traj_init = traj_init
+        self.Q = Q
+        self.Q_f = Q_f
+        self.cost_func = cost_func
 
-    def execute(self, x_init, U):
-        X = np.zeros((self.T, len(x_init))
-        X[0] = x_init
-        x_next = x_init
+    def execute_trajectory(x_init, U, dt):
+        """
+        Executes the control and plot the trajectory
+        """
+        T = len(U)
+        traj = np.zeros((T + 1, len(x_init)))
+        traj[0] = x_init
+        for i in range(1, T+1):
+            control = U[i-1]
+            next_state = f(traj[i - 1], control, dt)
+            traj[i] = next_state
 
-        # (TODO) figure out whether to add the (T+1)th state
-        for i in range(self.T - 1):
-            x_next = self.f(x_next, U[i], dt)
-            X[i+1] = x_next
-
-        return X
+        return traj
 
     def run_algorithm(self, threshold):
         """
@@ -46,14 +52,20 @@ class iLQR(object):
         """
         converged = False
         f = self.f
+        T = self.T
         dt = self.dt
-        curr_X = np.zeros((T, len(self.init_state)))
-        curr_init_state = self.init_state
-        curr_X[0] = curr_init_state
+        Q = self.Q
+        Q_f = self.Q_f
+        cost_func = self.cost_func
+
+        curr_X = np.zeros((T+1, len(self.init_state)))
+        curr_X[0] = self.init_state
         curr_U = self.control_init
+        prev_X = None
+        prev_U = None
         
         nX = len(self.init_state)
-        nU = len(curr_U)
+        nU = curr_U.shape[1]
         
         while not converged:
             # Execute current policy and record the current state-input trajectory {x}, {u}
@@ -63,22 +75,22 @@ class iLQR(object):
             # Compute LQ approximation of the optimal control problem around state-input trajectory
             # by computing a first-order Taylor expansion of the dynamics model and 
             # a second order Taylor expansion of the cost function
-
+            #
             ## First order taylor approximation of the dynamics model
-            A_X, B_U = compute_linear_approx_dynamics_model(f, curr_X, curr_Y, self.dt)
+            A_X, B_U = compute_linear_approx_dynamics_model(f, curr_X, curr_U, self.dt)
 
             ## Second order Taylor expansion of the cost function
-            Q_X, R_U = compute_quadratic_approx_cost(curr_X, curr_Y)
+            ## (TODO) Use an actual approximation and use the below function instaed
+            # Q_X, R_U = compute_quadratic_approx_cost(curr_X, curr_U)
+            Q_X, R_U = compute_quadratic_approx_cost_pendulum(cost_func, curr_X, curr_U)
 
             # Use the LQR backups to solve for the optimal control policy for LQ approximation obtained
             # in previous state
 
+
             # Compute S_k, K, K_v, K_u, v_k (Consider now only the case that Q_i are all the same)
             """
             Write out the equations here:
-
-
-
             """
             S = np.zeros((T+1, nX, nX))
             Q_N = Q_X[-1]
