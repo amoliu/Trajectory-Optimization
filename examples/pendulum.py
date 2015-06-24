@@ -5,6 +5,14 @@ from ilqr import iLQR
 This file should contain the a test example
 """
 
+def f(x, u):
+    """
+    Dynamics for pendulum
+    dx1/dt = x2
+    dx2/dt = g/l sinx1 - mu/(ml^2) x2 + 1/(ml^2) mu
+    """
+    pass
+
 
 def main():
     # (TODO)Consider a particular example (maybe an example from the paper)?
