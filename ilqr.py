@@ -92,13 +92,20 @@ class iLQR(object):
             """
             Write out the equations here:
             """
-            S = np.zeros((T+1, nX, nX))
             Q_N = Q_X[-1]
+            V_N = Q_N.dot(curr_X[-1])
+
+            S = np.zeros((T+1, nX, nX))
             S[-1] = Q_N
-            DELTA_U = np.zeros((T, nU))
-            V = np.zeros((T, nX)) # (TODO) What should V[T] be
+
+            V = np.zeros((T+1, nX))
+            V[-1] = V_N
+
             R = R_U[0] #(TODO)
             Q = Q_X[0] #(TODO)
+
+            DELTA_U = np.zeros((T, nU))
+
             for i in range(T):
                 index = T - i - 1
 
