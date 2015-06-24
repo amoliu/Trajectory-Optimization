@@ -2,7 +2,7 @@ import numpy as np
 from ilqr import iLQR
 
 """
-This file should contain the a test example
+This file contains a test example of a simple pendulum
 """
 
 def f(x, u):
@@ -15,7 +15,13 @@ def f(x, u):
 
 
 def main():
-    # (TODO)Consider a particular example (maybe an example from the paper)?
+    # Consider a particular example (maybe an example from the paper)?
+    m = 1
+    l = 1
+    g = 9.8
+    mu = 0.01
+    r = pow(10, -5)
+
     T = 50
     nX = 10
 

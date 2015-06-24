@@ -26,7 +26,7 @@ class iLQR(object):
 
         return X
 
-    def run_algorithm(self):
+    def run_algorithm(self, threshold):
         """
         (TODO): Figure out how to take into account the dynamics (using the simulation)
         
@@ -85,6 +85,8 @@ class iLQR(object):
             S[-1] = Q_N
             DELTA_U = np.zeros((T, nU))
             V = np.zeros((T, nX)) # (TODO) What should V[T] be
+            R = R_U[0] #(TODO)
+            Q = Q_X[0] #(TODO)
             for i in range(T):
                 index = T - i - 1
 
@@ -113,6 +115,17 @@ class iLQR(object):
 
 
             # Test convergence
+            diff_X = curr_X - prev_X
+            diff_U = curr_U - prev_U
+            abs_diff_X = sum(sum(sum(abs(diff_X), axis=2), axis=1), axis=0)
+            abs_diff_U = sum(sum(sum(abs(diff_U), axis=2), axis=1), axis=0)
+            abs_diff = abs_diff_X + abs_diff_U
+
+            if abs_diff < threshold:
+                converged = True
+
+            prev_X = curr_X
+            prev_U = curr_U
 
     return curr_U
 
