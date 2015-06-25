@@ -21,5 +21,4 @@ def compute_quadratic_approx_cost(cost_f, X, U):
     cost_control = np.empty((T, nU, nU))
 
 
-
     return (cost_traj, cost_control)

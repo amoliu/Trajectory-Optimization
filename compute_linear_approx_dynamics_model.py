@@ -3,7 +3,7 @@ from ilqr_utils.numerical_jac_dynamics import numerical_jac_dynamics
 
 def compute_linear_approx_dynamics_model(f, curr_X, curr_U, dt, eps=pow(10, -5)): 
     T = curr_U.shape[0]
-    assert curr_X.shape[1] == curr_U.shape[1]+1
+    assert curr_X.shape[0] == curr_U.shape[0]+1
 
     nX = curr_X.shape[1]
     nU = curr_U.shape[1]

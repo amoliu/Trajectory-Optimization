@@ -13,6 +13,7 @@ def compute_quadratic_approx_cost_pendulum(X, U, Q_f, Q):
     T = len(U)
     nX = X.shape[1]
     nU = U.shape[1]
+    r = pow(10, 0)
 
     # How do I implement this shit...
 
@@ -26,6 +27,6 @@ def compute_quadratic_approx_cost_pendulum(X, U, Q_f, Q):
 
     # Below is the computation for the cost of the control
     for i in range(T):
-        cost_control[i] = np.eye(1)
+        cost_control[i] = r * np.eye(1)
 
     return (cost_traj, cost_control)
