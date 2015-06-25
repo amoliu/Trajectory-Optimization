@@ -24,10 +24,11 @@ def f(x, u, dt):
     assert len(u) == 1 # control is one dimensional
     u = u[0]
 
+    x1 = x[0]
+    x2 = x[1]
+
     while t < dt:
         current_dt = min(DT, dt - t)
-        x1 = x[0]
-        x2 = x[1]
 
         dx1 = x2
         dx2 = g / l * sin(x1) - mu / (m * l * l) * x2 + 1 / (m * l * l) * u
