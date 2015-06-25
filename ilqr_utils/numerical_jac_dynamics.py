@@ -6,8 +6,7 @@ def numerical_jac_dynamics(f, x, u, dt, eps=pow(10, -5)):
     current trajectory x and control u
     (TODO) test that this function is correct
     """
-    y = f(x) 
-    assert len(x) == len(u)
+    y = f(x, u, dt) 
     grad_x = np.zeros((len(y), len(x)));
     grad_u = np.zeros((len(y), len(u)));
     

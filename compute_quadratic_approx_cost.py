@@ -13,7 +13,7 @@ def compute_quadratic_approx_cost(cost_f, X, U):
     # How do I implement this shit..
 
     T = len(U)
-    assert T+1 = len(X)
+    assert T+1 == len(X)
     nX = X.shape[1]
     nU = U.shape[1]
 

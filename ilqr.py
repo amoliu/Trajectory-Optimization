@@ -18,7 +18,7 @@ class iLQR(object):
         self.Q_f = Q_f
         self.cost_func = cost_func
 
-    def execute_trajectory(x_init, U, dt):
+    def execute_control(self, f, x_init, U, dt):
         """
         Executes the control and plot the trajectory
         """
@@ -66,11 +66,14 @@ class iLQR(object):
         
         nX = len(self.init_state)
         nU = curr_U.shape[1]
+
+        max_iter = 5
+        iteration = 0
         
-        while not converged:
+        while not converged and iteration < max_iter:
             # Execute current policy and record the current state-input trajectory {x}, {u}
             if self.traj_init == None:
-                curr_X = self.execute(curr_init_state, curr_U)
+                curr_X = self.execute_control(f, self.init_state, curr_U, dt)
 
             # Compute LQ approximation of the optimal control problem around state-input trajectory
             # by computing a first-order Taylor expansion of the dynamics model and 
@@ -82,7 +85,7 @@ class iLQR(object):
             ## Second order Taylor expansion of the cost function
             ## (TODO) Use an actual approximation and use the below function instaed
             # Q_X, R_U = compute_quadratic_approx_cost(curr_X, curr_U)
-            Q_X, R_U = compute_quadratic_approx_cost_pendulum(cost_func, curr_X, curr_U)
+            Q_X, R_U = compute_quadratic_approx_cost_pendulum(curr_X, curr_U, Q_f, Q)
 
             # Use the LQR backups to solve for the optimal control policy for LQ approximation obtained
             # in previous state
@@ -116,7 +119,7 @@ class iLQR(object):
                 B = B_U[index]
 
                 S_n = S[index+1]
-                K_help = np.inv(B.T.dot(S_n).dot(B) + R)
+                K_help = np.linalg.inv(B.T.dot(S_n).dot(B) + R)
                 K = K_help.dot(B.T).dot(S_n).dot(A)
 
                 S_k = A.T.dot(S_n).dot(A - B.dot(K)) + Q
@@ -126,25 +129,32 @@ class iLQR(object):
                 K_u = K_help.dot(R)
 
                 v_n = V[index+1]
-                v = (A - B.dot(K)).dot(v) - K.T.dot(R).dot(u) + Q.dot(x)
+                v = (A - B.dot(K)).dot(v_n) - K.T.dot(R).dot(u) + Q.dot(x)
                 V[index] = v
 
-                delta_u = -K.dot(delta_x) - K_v.dot(v_next) - K_u.dot(u)
+                # delta_x =  (TODO) Figure this out and double check this??
+                delta_x = curr_X[index+1] - x
+                delta_u = -K.dot(delta_x) - K_v.dot(v_n) - K_u.dot(u)
                 DELTA_U[index] = delta_u
 
 
-            # Test convergence
-            diff_X = curr_X - prev_X
-            diff_U = curr_U - prev_U
-            abs_diff_X = sum(sum(sum(abs(diff_X), axis=2), axis=1), axis=0)
-            abs_diff_U = sum(sum(sum(abs(diff_U), axis=2), axis=1), axis=0)
-            abs_diff = abs_diff_X + abs_diff_U
+            curr_U = curr_U + DELTA_U # (TODO) Is this correct??
 
-            if abs_diff < threshold:
-                converged = True
+            # Test convergence
+            if prev_X != None and prev_U != None:
+                diff_X = curr_X - prev_X
+                diff_U = curr_U - prev_U
+                abs_diff_X = np.sum(np.sum(abs(diff_X), axis=1), axis=0)
+                abs_diff_U = np.sum(np.sum(abs(diff_U), axis=1), axis=0)
+                abs_diff = abs_diff_X + abs_diff_U
+
+                if abs_diff < threshold:
+                    converged = True
 
             prev_X = curr_X
             prev_U = curr_U
+            
+            iteration += 1
 
-    return curr_U
+        return curr_U
 

@@ -33,9 +33,9 @@ def plot_trajectory(traj):
 
 def main():
     # Consider a particular example (maybe an example from the paper)?
-    T = 50
+    T = 300
     nX = 10
-    dt = 0.1
+    dt = 0.01
 
     x_init = np.array([pi/2, 0])
     U_init = np.zeros((T, 1))
@@ -53,5 +53,5 @@ def main():
     plot_trajectory(traj)
 
 
-if __main__ == "__main__":
+if __name__ == "__main__":
     main()
