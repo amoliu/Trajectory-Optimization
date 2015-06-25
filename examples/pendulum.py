@@ -3,7 +3,8 @@ from ilqr import iLQR
 from math import sin, pi
 import matplotlib.pyplot as plt
 from inverted_pendulum_dynamics import f
-from inverted_pendulum_cost import inverted_pendulum_cost
+# from inverted_pendulum_cost import inverted_pendulum_cost
+from compute_quadratic_approx_cost_pendulum import compute_quadratic_approx_cost_pendulum
 import argparse
 
 """
@@ -37,13 +38,13 @@ def main(T, dt):
     T = T
     dt = dt
 
-    x_init = np.array([pi/2, 0])
+    x_init = np.array([pi/3, 0])
     U_init = np.zeros((T, 1))
 
     Q_f = np.eye(2) # terminal cost
     Q = np.zeros((2, 2)) # cost matrix for states
 
-    ilqr_solver = iLQR(f, T, dt, x_init, U_init, inverted_pendulum_cost, Q = Q, Q_f = Q_f)
+    ilqr_solver = iLQR(f, T, dt, x_init, U_init, compute_quadratic_approx_cost_pendulum, Q = Q, Q_f = Q_f)
     threshold = pow(10, -3)
     U = ilqr_solver.run_algorithm(threshold) # column i of U should be control input at time i
 
