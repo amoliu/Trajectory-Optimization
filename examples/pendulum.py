@@ -4,6 +4,7 @@ from math import sin, pi
 import matplotlib.pyplot as plt
 from inverted_pendulum_dynamics import f
 from inverted_pendulum_cost import inverted_pendulum_cost
+import argparse
 
 """
 This file contains a test example of a simple pendulum
@@ -31,11 +32,10 @@ def plot_trajectory(traj):
     plt.ylabel("velocity")
     plt.show()
 
-def main():
+def main(T, dt):
     # Consider a particular example (maybe an example from the paper)?
-    T = 300
-    nX = 10
-    dt = 0.01
+    T = T
+    dt = dt
 
     x_init = np.array([pi/2, 0])
     U_init = np.zeros((T, 1))
@@ -54,4 +54,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("T", type=int, help="number of time steps")
+    parser.add_argument("dt", type=float, help="dt")
+    args = parser.parse_args()
+    T = args.T
+    dt = args.dt
+
+    main(T, dt)
