@@ -67,7 +67,7 @@ class iLQR(object):
         nX = len(self.init_state)
         nU = curr_U.shape[1]
 
-        max_iter = 5
+        max_iter = 10
         iteration = 0
         
         while not converged and iteration < max_iter:
@@ -137,7 +137,6 @@ class iLQR(object):
                 delta_u = -K.dot(delta_x) - K_v.dot(v_n) - K_u.dot(u)
                 DELTA_U[index] = delta_u
 
-
             curr_U = curr_U + DELTA_U # (TODO) Is this correct??
 
             # Test convergence
@@ -147,6 +146,7 @@ class iLQR(object):
                 abs_diff_X = np.sum(np.sum(abs(diff_X), axis=1), axis=0)
                 abs_diff_U = np.sum(np.sum(abs(diff_U), axis=1), axis=0)
                 abs_diff = abs_diff_X + abs_diff_U
+                print("abs_diff_U: {}".format(abs_diff_U))
 
                 if abs_diff < threshold:
                     converged = True
@@ -155,6 +155,9 @@ class iLQR(object):
             prev_U = curr_U
             
             iteration += 1
+
+        last_state = curr_X[-1]
+        print("The final state is {}".format(final_state))
 
         return curr_U
 
