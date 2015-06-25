@@ -25,11 +25,14 @@ def execute_trajectory(x_init, U, dt):
     return traj
 
 def plot_trajectory(traj):
-    X1 = traj[:,0] # theta
-    X2 = traj[:,1] # velocity
-    plt.plot(X1, X2)
-    plt.xlabel("theta")
-    plt.ylabel("velocity")
+    X1 = traj[:,0] # theta1
+    X2 = traj[:,1] # theta2
+    T = len(traj)
+    t = np.arange(0, T)
+
+    plt.plot(t, X1, "r--", t, X2, "bs")
+    plt.xlabel("Time")
+    plt.ylabel("Theta1, Theta2")
     plt.show()
 
 def main(T, dt):
