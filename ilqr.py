@@ -132,7 +132,7 @@ class iLQR(object):
                 delta_u = -K.dot(delta_x) - K_v.dot(v_next) - K_u.dot(u)
                 DELTA_U[index] = delta_u
 
-
+            import pdb; pdb.set_trace()
             # Test convergence
             diff_X = curr_X - prev_X
             diff_U = curr_U - prev_U
