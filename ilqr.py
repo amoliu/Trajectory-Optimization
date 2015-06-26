@@ -132,11 +132,21 @@ class iLQR(object):
                 v = (A - B.dot(K)).T.dot(v_n) - K.T.dot(R).dot(u) + Q.dot(x) #ok
                 V[index] = v
 
-                delta_x = x
-                delta_u = -K.dot(delta_x) - K_v.dot(v_n) - K_u.dot(u) #ok
-                DELTA_U[index] = delta_u #ok
+            # (TODO) Not sure if this is correct either (especially curr_X)
+            for i in range(T):
+                u = curr_U[i]
+                if i == 0:
+                    delta_u = - K_v.dot(v_n) - K_u.dot(u) 
+                else:
+                    # first option (calculating based on state)
+                    delta_x = f(curr_X[i-1], curr_U[i-1], dt) - curr_X[i]
+                    # second option (using the new control all along)
+                    # delta_x = f(curr_X[i-1], curr_U[i-1], dt) - curr_X[i]
+                    # curr_X[i] = curr_X[i] + delta_x
 
-            curr_U = curr_U + DELTA_U # (TODO) Is this correct??
+                    delta_u = -K.dot(delta_x) - K_v.dot(v_n) - K_u.dot(u) #ok
+                DELTA_U[i] = delta_u #ok
+                curr_U[i] = curr_U[i] + delta_u
 
             # Test convergence
             if prev_X != None and prev_U != None:
