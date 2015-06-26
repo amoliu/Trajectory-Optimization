@@ -13,7 +13,7 @@ def compute_quadratic_approx_cost_pendulum(X, U, Q_f, Q):
     T = len(U)
     nX = X.shape[1]
     nU = U.shape[1]
-    r = pow(10, 0)
+    r = pow(10, -5)
 
     # How do I implement this shit...
 

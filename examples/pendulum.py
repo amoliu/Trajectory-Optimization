@@ -22,7 +22,9 @@ def execute_trajectory(x_init, U, dt):
         control = U[i-1]
         next_state = f(traj[i - 1], control, dt)
         traj[i] = next_state
-
+    
+    final_state = traj[-1]
+    print("The final state is {}".format(final_state))
     return traj
 
 def plot_trajectory(traj):
@@ -38,7 +40,7 @@ def main(T, dt):
     T = T
     dt = dt
 
-    x_init = np.array([pi/3, 0])
+    x_init = np.array([pi, 0])
     U_init = np.zeros((T, 1))
 
     Q_f = np.eye(2) # terminal cost

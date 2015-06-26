@@ -12,12 +12,12 @@ def inverted_pendulum_cost(X, U):
     nY = U.shape[1]
 
     Q_f = np.eye(nX)
-    final_state = nX[-1]
+    final_state = X[-1]
     r = pow(10, -5)
 
     cost = 0
     cost += final_state.T.dot(Q_f).dot(final_state)
-    cost += r * np.sum(np.sum(np.power(Q, 2)))
+    cost += r * np.sum(np.sum(np.power(U, 2)))
     cost *= 0.5
 
     return cost
