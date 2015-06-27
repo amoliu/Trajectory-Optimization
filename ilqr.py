@@ -114,6 +114,9 @@ class iLQR(object):
             Q = Q_X[0] #ok
 
             DELTA_U = np.zeros((T, nU)) #ok
+            K_all = np.zeros((T, nU, nX))
+            Kv_all = np.zeros((T, nU, nX))
+            Ku_all = np.zeros((T, nU, nU))
 
             for i in range(T):
                 index = T - i - 1 #ok
@@ -137,31 +140,53 @@ class iLQR(object):
                 v_n = V[index+1] #ok
                 v = (A - B.dot(K)).T.dot(v_n) - K.T.dot(R).dot(u) + Q.dot(x) #ok
                 V[index] = v
-           
-                delta_x = np.ones((nX, 1))* 0.00000000000001
-                delta_u = -K.dot(delta_x) - K_v.dot(v_n) - K_u.dot(u) #ok
+
                 # import pdb; pdb.set_trace()
-                DELTA_U[index] = delta_u
+                K_all[index] = K
+                Kv_all[index] = K_v
+                Ku_all[index] = K_u
+           
+                # delta_x = np.ones((nX, 1))* 0.00000000000001
+                # delta_u = -K.dot(delta_x) - K_v.dot(v_n) - K_u.dot(u) #ok
+                # import pdb; pdb.set_trace()
+                # DELTA_U[index] = delta_u
             
-            curr_U = curr_U + 0.25 * DELTA_U
+            # curr_U = curr_U + 0.25 * DELTA_U
 
-            # prev_X = curr_X.copy()
-            # prev_U = curr_U.copy()
+            prev_X = curr_X.copy()
+            prev_U = curr_U.copy()
+            dX = np.empty((T, nX))
+            dX[0] = np.zeros(nX)
             # # (TODO) Not sure if this is correct either (especially curr_X)
-            # for i in range(T):
-            #     u = curr_U[i]
-            #     if i == 0:
-            #         delta_u = - K_v.dot(v_n) - K_u.dot(u) 
-            #     else:
-            #         # first option (calculating based on state)
-            #         delta_x = f(curr_X[i-1], curr_U[i-1], dt) - curr_X[i]
-            #         # second option (using the new control all along)
-            #         # delta_x = f(curr_X[i-1], curr_U[i-1], dt) - curr_X[i]
-            #         # curr_X[i] = curr_X[i] + delta_x
+            for i in range(T):
+                u = curr_U[i]
+                v_n = V[i+1]
+                K = K_all[i]
+                K_v = Kv_all[i]
+                K_u = Ku_all[i]
 
-            #         delta_u = -K.dot(delta_x) - K_v.dot(v_n) - K_u.dot(u) #ok
-            #     DELTA_U[i] = delta_u #ok
-                # curr_U[i] = curr_U[i] + delta_u
+                if i == 0:
+                    delta_u = - K_v.dot(v_n) - K_u.dot(u) 
+                else:
+                    A_prev = A_X[i-1]
+                    B_prev = B_U[i-1]
+                    S_curr = S[i]
+                    v_curr = V[i]
+                    R_inv = np.linalg.inv(R)
+                    tmp = np.linalg.inv(np.eye(nX) + B_prev.dot(R_inv).dot(B_prev.T).dot(S_curr))
+                    dX[i] = tmp.dot(A_prev.dot(dX[i-1]) - B_prev.dot(R_inv).dot(B_prev.T).dot(v_curr) - B_prev.dot(u))
+                    delta_x = dX[i]
+                    # first option (calculating based on state)
+                    # delta_x = f(curr_X[i-1], curr_U[i-1], dt) - curr_X[i]
+                    # second option (using the new control all along)
+                    # delta_x = f(curr_X[i-1], curr_U[i-1], dt) - curr_X[i]
+                    # curr_X[i] = curr_X[i] + delta_x
+                    
+                    # Both of the above are wrong, this one should be correct
+                    delta_u = -K.dot(delta_x) - K_v.dot(v_n) - K_u.dot(u) #ok
+
+                DELTA_U[i] = delta_u #ok
+                curr_U[i] = curr_U[i] + delta_u
 
 
             # Test convergence
