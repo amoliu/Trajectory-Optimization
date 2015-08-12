@@ -15,8 +15,6 @@ def compute_quadratic_approx_cost_pendulum(X, U, Q_f, Q):
     nU = U.shape[1]
     r = pow(10, -5)
 
-    # How do I implement this shit...
-
     cost_traj = np.empty((T+1, nX, nX))
     cost_control = np.empty((T, nU, nU))
 

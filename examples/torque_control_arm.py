@@ -36,7 +36,6 @@ def plot_trajectory(traj):
     plt.show()
 
 def main(T, dt):
-    # Consider a particular example (maybe an example from the paper)?
     T = T
     dt = dt
 

@@ -10,8 +10,6 @@ def compute_quadratic_approx_cost(cost_f, X, U):
 
     """
 
-    # How do I implement this shit..
-
     T = len(U)
     assert T+1 == len(X)
     nX = X.shape[1]
@@ -19,6 +17,5 @@ def compute_quadratic_approx_cost(cost_f, X, U):
 
     cost_traj = np.empty((T+1, nX, nX))
     cost_control = np.empty((T, nU, nU))
-
 
     return (cost_traj, cost_control)

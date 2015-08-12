@@ -10,7 +10,6 @@ def f(x, u, dt):
     x1 = theta
     x2 = d(theta)/ dt
 
-    (TODO) Look up how to implement a pendulum system
     """
     m = 1.0
     l = 1.0
